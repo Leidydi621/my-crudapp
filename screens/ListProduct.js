@@ -33,7 +33,7 @@ export default function ListProduct(props) {
             }
         }
         getLista()
-    },[])
+    },[lista])
 
   return (
     <ScrollView>
