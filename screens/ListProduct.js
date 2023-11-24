@@ -1,7 +1,40 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
 
+//importar firebase
+
+import appFirebase from '../credenciasles'
+import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, getDoc, setDoct } from 'firebase/firestore'
+import { useEffect, useState } from 'react';
+
+const db = getFirestore(appFirebase)
+
 export default function ListProduct(props) {
+
+    const [lista, setLista]= useState([])
+
+    useEffect(() => {
+        const getLista = async()=>{
+            try {
+                const querySnapshot = await getDocs(collection(db, 'productos'))
+                const docs = []
+                querySnapshot.forEach((doc) =>{
+                    const { nombre, color, stock }= doc.data()
+                    docs.push({
+                        id: doc.id,
+                        nombre,
+                        color,
+                        stock,
+                    })
+                }) 
+                setLista(docs)
+            } catch (error) {
+                console.error(error);
+            }
+        }
+        getLista()
+    },[])
+
   return (
     <ScrollView>
         <TouchableOpacity style={styles.boton} onPress={()=> props.navigation.navigate('Create')}>
@@ -11,6 +44,17 @@ export default function ListProduct(props) {
         </TouchableOpacity>
         <View>
             <Text style={styles.textTitulo}>Lista de productos</Text>
+        </View>
+
+        <View>
+            {
+                lista.map((list)=>(
+                    <TouchableOpacity key={list.id} style={styles.botonLista}
+                        onPress={()=> props.navigation.navigate('Show', {productoId: list.id})}>
+                        <Text style={styles.textNombre}>{list.nombre}</Text>
+                    </TouchableOpacity>
+                ))
+            }
         </View>
     </ScrollView>
   );
